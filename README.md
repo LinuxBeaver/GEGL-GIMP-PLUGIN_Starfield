@@ -2,7 +2,7 @@ GEGL Starfield
 =========
 
 GEGL Starfield
-
+![image preview](starfield1.png)
 
 ## Compiling and Installing
 
