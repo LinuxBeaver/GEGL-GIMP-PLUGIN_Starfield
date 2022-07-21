@@ -69,6 +69,11 @@ property_double (saturation, _("Add Color to Stars"), 0.0)
     value_range (0.0, 1.0)
     ui_range (0.0, 1.0)
 
+property_double (factor, _("Zoom Motion Blur"), 0.00)
+    value_range (0, 0.30)
+    ui_range    (0.0, 0.30)
+    ui_gamma    (2.0)
+
 
 #else
 
@@ -81,7 +86,7 @@ property_double (saturation, _("Add Color to Stars"), 0.0)
 static void attach (GeglOperation *operation)
 {
   GeglNode *gegl = operation->node;
-  GeglNode *input, *output, *color, *noise, *invert, *levels, *gamma, *blur, *glow, *saturation;
+  GeglNode *input, *output, *color, *noise, *invert, *levels, *gamma, *blur, *glow, *saturation, *zmb;
 
   input    = gegl_node_get_input_proxy (gegl, "input");
   output   = gegl_node_get_output_proxy (gegl, "output");
@@ -119,6 +124,11 @@ static void attach (GeglOperation *operation)
                                   "operation", "gegl:softglow",
                                   NULL);
 
+  zmb = gegl_node_new_child (gegl,
+                                  "operation", "gegl:motion-blur-zoom",
+                                  NULL);
+
+
 
 
 
@@ -135,11 +145,13 @@ static void attach (GeglOperation *operation)
     gegl_operation_meta_redirect (operation, "out_high", levels, "out-high");
     gegl_operation_meta_redirect (operation, "in_high", levels, "in-high");
     gegl_operation_meta_redirect (operation, "saturation", saturation, "scale");
+    gegl_operation_meta_redirect (operation, "factor", zmb, "factor");
 
 
 
 
-  gegl_node_link_many (input, color, noise, invert, levels, gamma, blur, glow, saturation, output, NULL);
+
+  gegl_node_link_many (input, color, noise, invert, levels, gamma, blur, glow, saturation, zmb, output, NULL);
 
 
 
