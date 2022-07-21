@@ -1,5 +1,6 @@
 GEGL Starfield
 =========
+![image preview](starfield_with_zoom_blur.png)
 
 GEGL Starfield
 
