@@ -22,6 +22,14 @@
 
 #ifdef GEGL_PROPERTIES
 
+property_string (string, _("Graph2"), TUTORIALG)
+    ui_meta     ("role", "output-extent")
+
+#define TUTORIALG \
+" id=1 src  aux=[ ref=1 color ] crop "\
+
+
+
 
 property_color (value, _("Color"), "#ffffff")
     description (_("The color to paint over the input"))
@@ -86,7 +94,7 @@ property_double (factor, _("Zoom Motion Blur"), 0.00)
 static void attach (GeglOperation *operation)
 {
   GeglNode *gegl = operation->node;
-  GeglNode *input, *output, *color, *noise, *invert, *levels, *gamma, *blur, *glow, *saturation, *zmb;
+  GeglNode *input, *output, *graph, *color, *noise, *invert, *levels, *gamma, *blur, *glow, *saturation, *zmb;
 
   input    = gegl_node_get_input_proxy (gegl, "input");
   output   = gegl_node_get_output_proxy (gegl, "output");
@@ -95,6 +103,11 @@ static void attach (GeglOperation *operation)
   color = gegl_node_new_child (gegl,
                                   "operation", "gegl:color-overlay",
                                   NULL);
+
+  graph = gegl_node_new_child (gegl,
+                                  "operation", "gegl:gegl",
+                                  NULL);
+
 
   noise = gegl_node_new_child (gegl,
                                   "operation", "gegl:noise-hsv",
@@ -146,12 +159,13 @@ static void attach (GeglOperation *operation)
     gegl_operation_meta_redirect (operation, "in_high", levels, "in-high");
     gegl_operation_meta_redirect (operation, "saturation", saturation, "scale");
     gegl_operation_meta_redirect (operation, "factor", zmb, "factor");
+    gegl_operation_meta_redirect (operation, "string",  graph, "string");
 
 
 
 
 
-  gegl_node_link_many (input, color, noise, invert, levels, gamma, blur, glow, saturation, zmb, output, NULL);
+  gegl_node_link_many (input, graph, color, noise, invert, levels, gamma, blur, glow, saturation, zmb, output, NULL);
 
 
 
@@ -172,7 +186,7 @@ gegl_op_class_init (GeglOpClass *klass)
     "title",       _("Starfield"),
     "categories",  "Aristic",
     "reference-hash", "45eak6vgah28vf20fno25sb2ac",
-    "description", _("Render a Starry Night with GEGL. - Filter requires an opaque background.  "
+    "description", _("Render a Starry Night with GEGL. "
                      ""),
     NULL);
 }
