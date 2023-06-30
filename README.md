@@ -1,5 +1,7 @@
 GEGL Starfield
 =========
+Make a starfield background in Gimp - inspired by the classic Windows screensaver.
+
 ![image preview](starfield1.png)
 
 GEGL Starfield
