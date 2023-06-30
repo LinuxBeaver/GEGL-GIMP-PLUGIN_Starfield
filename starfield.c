@@ -17,44 +17,41 @@
  * 2022 Beaver (GEGL starfield)
  */
 
+/*
+You can test starfield without installing it by giving this info to Gimp's GEGL Graph filter.
+This graph may not be a 100% accurate representation of it, but it is close enough.
+ 
+id=1 src  aux=[ ref=1 color ] crop
+color-overlay value=#ffffff
+crop
+noise-hsv saturation-distance=0.000 value-distance=-2  holdness=2 seed=4 
+invert
+levels   out-high=3.60 in-high=0.3
+gamma value=25
+gaussian-blur std-dev-x=1.0 std-dev-y=1.0
+crop
+softglow
+ */
+
+
 #include "config.h"
 #include <glib/gi18n-lib.h>
 
 #ifdef GEGL_PROPERTIES
 
-property_string (string, _("Graph2"), TUTORIALG)
-    ui_meta     ("role", "output-extent")
-
 #define TUTORIALG \
 " id=1 src  aux=[ ref=1 color ] crop "\
+/* This GEGL Graph allows it to apply on transparent surfaces. When this filter was first released in Summer 2022 it required an opaque background. */
 
-
-
-
-property_color (value, _("Color"), "#ffffff")
-    description (_("The color to paint over the input"))
-    ui_meta     ("role", "#ffffff")
-    ui_meta     ("role", "output-extent")
-
-property_int  (holdness, _("Dulling"), 8)
-  value_range (8, 8)
-  description (_("A high value lowers the randomness of the noise"))
-    ui_meta     ("role", "output-extent")
-
-property_double (saturation_distance, _("Add background stars and enhance color"), 0.035)
+property_double (saturation_distance, _("Add background Stars and enhance color"), 0.035)
   value_range   (0.025, 0.046)
 
 
-property_double (value_distance, _("Amount of Stars"), 0.06)
+property_double (value_distance, _("Amount of Stars"), 0.055)
   value_range   (0.043, 0.065)
 
 property_seed   (seed, _("Random seed"), rand)
 
-
-property_double (in_high, _("High input"), 0.33)
-    description (_("Input luminance level to become white"))
-    ui_range    (0.33, 0.33)
-    ui_meta     ("role", "output-extent")
 
 property_double (out_high, _("Make Stars Brighter"), 4.15)
     description (_("Highest luminance level in output"))
@@ -65,8 +62,8 @@ property_double (gamma, _("Size range of Stars"), 14)
    ui_range (0, 40)
 
 
-property_double (std_dev, _("Blur (alt use for making snow) "), 1.0)
-   description (_("Standard deviation (spatial scale factor)"))
+property_double (std_dev, _("Blur Stars"), 1.0)
+   description (_("Blur the stars. An Alt use for this can make snow"))
    value_range (0.0, 7.0)
    ui_range    (0.24, 7.0)
    ui_gamma    (3.0)
@@ -98,19 +95,21 @@ static void attach (GeglOperation *operation)
 
   input    = gegl_node_get_input_proxy (gegl, "input");
   output   = gegl_node_get_output_proxy (gegl, "output");
+  GeglColor *starcolor = gegl_color_new ("#ffffff");
 
 
   color = gegl_node_new_child (gegl,
                                   "operation", "gegl:color-overlay",
-                                  NULL);
+                                   "value", starcolor, NULL);
+       
 
   graph = gegl_node_new_child (gegl,
-                                  "operation", "gegl:gegl",
+                                  "operation", "gegl:gegl", "string", TUTORIALG,
                                   NULL);
 
 
   noise = gegl_node_new_child (gegl,
-                                  "operation", "gegl:noise-hsv",
+                                  "operation", "gegl:noise-hsv", "holdness", 8,
                                   NULL);
 
   invert = gegl_node_new_child (gegl,
@@ -118,7 +117,7 @@ static void attach (GeglOperation *operation)
                                   NULL);
 
   levels = gegl_node_new_child (gegl,
-                                  "operation", "gegl:levels",
+                                  "operation", "gegl:levels", "in-high", 0.33,
                                   NULL);
 
   gamma = gegl_node_new_child (gegl,
@@ -141,28 +140,16 @@ static void attach (GeglOperation *operation)
                                   "operation", "gegl:motion-blur-zoom",
                                   NULL);
 
-
-
-
-
-
-
-    gegl_operation_meta_redirect (operation, "value", color, "value");
     gegl_operation_meta_redirect (operation, "saturation_distance", noise, "saturation-distance");
     gegl_operation_meta_redirect (operation, "value_distance", noise, "value-distance");
-    gegl_operation_meta_redirect (operation, "holdness", noise, "holdness");
     gegl_operation_meta_redirect (operation, "seed", noise, "seed");
     gegl_operation_meta_redirect (operation, "gamma", gamma, "value");
     gegl_operation_meta_redirect (operation, "std_dev", blur, "std-dev-x");
     gegl_operation_meta_redirect (operation, "std_dev", blur, "std-dev-y");
     gegl_operation_meta_redirect (operation, "out_high", levels, "out-high");
-    gegl_operation_meta_redirect (operation, "in_high", levels, "in-high");
     gegl_operation_meta_redirect (operation, "saturation", saturation, "scale");
     gegl_operation_meta_redirect (operation, "factor", zmb, "factor");
     gegl_operation_meta_redirect (operation, "string",  graph, "string");
-
-
-
 
 
   gegl_node_link_many (input, graph, color, noise, invert, levels, gamma, blur, glow, saturation, zmb, output, NULL);
