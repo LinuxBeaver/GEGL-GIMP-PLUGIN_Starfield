@@ -175,6 +175,8 @@ gegl_op_class_init (GeglOpClass *klass)
     "reference-hash", "45eak6vgah28vf20fno25sb2ac",
     "description", _("Render a Starry Night with GEGL. "
                      ""),
+    "gimp:menu-path", "<Image>/Filters/Render/Fun",
+    "gimp:menu-label", _("Starfield..."),
     NULL);
 }
 
