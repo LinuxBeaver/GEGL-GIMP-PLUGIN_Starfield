@@ -44,7 +44,7 @@ softglow
 /* This GEGL Graph allows it to apply on transparent surfaces. When this filter was first released in Summer 2022 it required an opaque background. */
 
 property_double (saturation_distance, _("Add background Stars and enhance color"), 0.035)
-  value_range   (0.025, 0.046)
+  ui_range   (0.025, 0.046)
 
 
 property_double (value_distance, _("Amount of Stars"), 0.055)
@@ -75,7 +75,6 @@ property_double (saturation, _("Add Color to Stars"), 0.0)
     ui_range (0.0, 1.0)
 
 property_double (factor, _("Zoom Motion Blur"), 0.00)
-    value_range (0, 0.30)
     ui_range    (0.0, 0.30)
     ui_gamma    (2.0)
 
