@@ -39,8 +39,7 @@ softglow
 
 #ifdef GEGL_PROPERTIES
 
-#define TUTORIALG \
-" id=1 src  aux=[ ref=1 color ] crop "\
+
 /* This GEGL Graph allows it to apply on transparent surfaces. When this filter was first released in Summer 2022 it required an opaque background. */
 
 property_double (saturation_distance, _("Add background Stars and enhance color"), 0.035)
@@ -101,6 +100,9 @@ static void attach (GeglOperation *operation)
                                   "operation", "gegl:color-overlay",
                                    "value", starcolor, NULL);
        
+
+#define TUTORIALG \
+" id=1 src  aux=[ ref=1 distance-transform ]  "\
 
   graph = gegl_node_new_child (gegl,
                                   "operation", "gegl:gegl", "string", TUTORIALG,
